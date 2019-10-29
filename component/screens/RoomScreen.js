@@ -85,13 +85,14 @@ class RoomScreen extends Component {
       // this.props.navigation.navigate('RoomScreen')
   };
 
-  //Function Edit Room
+  //Function Open Edit Room
   handleOpenEditRoom(id,name){
     // alert(id)
     this.refs.EditRoom.open()
     this.setState({id:id})
   }
 
+  //Function Edit Room
   handleEditRoom = async () => {
     this.refs.EditRoom.close()
     await Axios({
@@ -148,9 +149,6 @@ class RoomScreen extends Component {
                 style={[styles.modal, styles.modal4]}
                 position={'center'}>
                 <View>
-                  <Text style={styles.text}>
-                    Text Input in Modal
-                  </Text>
                   <TextInput onChangeText={room => this.setState({input: room})}
                     placeholder="Room Name"
                     style={{ 
