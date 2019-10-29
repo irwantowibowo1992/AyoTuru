@@ -6,15 +6,17 @@ import Icon from 'react-native-vector-icons/FontAwesome5'
 
 import RoomScreen from '../screens/RoomScreen'
 import CheckInScreen from '../screens/CheckInScreen'
+import CustomerScreen from '../screens/CustomerScreen'
+import SettingScreen from '../screens/SettingScreen'
 
-const RoomStack = createStackNavigator({
-  RoomStack: {
-    screen: RoomScreen,
-    navigationOptions: {
-      header: null
-    },
-  },
-});
+// const RoomStack = createStackNavigator({
+//   RoomStack: {
+//     screen: RoomScreen,
+//     navigationOptions: {
+//       header: null
+//     },
+//   },
+// });
 
 const BottomTabNavigator = createBottomTabNavigator(
   {
@@ -33,15 +35,13 @@ const BottomTabNavigator = createBottomTabNavigator(
         tabBarIcon: ({focused}) => {
           return (
             <Icon
-              name="canadian-maple-leaf"
+              name="bed"
               style={focused ? {color: '#09CE61'} : {color: 'grey'}}
               size={23} />
           )
         }
       },
     },
-  },
-  {
     CheckInScreen: {
       screen: CheckInScreen,
       navigationOptions: {
@@ -64,9 +64,51 @@ const BottomTabNavigator = createBottomTabNavigator(
         }
       },
     },
+    CustomerScreen: {
+      screen: CustomerScreen,
+      navigationOptions: {
+        header: null,
+        tabBarLabel: ({focused}) => {
+          return (
+            <Text
+              style={[focused ? {color: '#09CE61'} : {color: 'grey'}, { textAlign: 'center', fontSize: 10 }]}>
+              Customer
+            </Text>
+          )
+        },
+        tabBarIcon: ({focused}) => {
+          return (
+            <Icon
+              name="user"
+              style={focused ? {color: '#09CE61'} : {color: 'grey'}}
+              size={23} />
+          )
+        }
+      },
+    },
+    SettingScreen: {
+      screen: SettingScreen,
+      navigationOptions: {
+        header: null,
+        tabBarLabel: ({focused}) => {
+          return (
+            <Text
+              style={[focused ? {color: '#09CE61'} : {color: 'grey'}, { textAlign: 'center', fontSize: 10 }]}>
+              Setting
+            </Text>
+          )
+        },
+        tabBarIcon: ({focused}) => {
+          return (
+            <Icon
+              name="cog"
+              style={focused ? {color: '#09CE61'} : {color: 'grey'}}
+              size={23} />
+          )
+        }
+      },
+    },
   },
-
-
   {
     tabBarOptions: {
       activeTintColor: '#000000',
