@@ -16,7 +16,10 @@ class RoomScreen extends Component {
       swipeToClose: true,
       sliderValue: 0.3,
 
-      input: '',
+      input: '', //handle Data input Add Room
+
+      roomName: '',
+      id: '',
 
 
       dataRooms: []
@@ -40,11 +43,15 @@ class RoomScreen extends Component {
 
 
 
-  componentDidMount(){
-    this.fatchData()
-  }
+  // componentDidMount(){
+  //   this.fatchData()
+  // }
 
   componentDidMount(){
+    this.onLoad();
+  }
+
+  onLoad = () => {
     Axios.get(`http://192.168.1.22:5000/api/v2/rooms`).then(res => {
       console.log( '++++++++++++++++++++++++++++++++++++', res.data)
       this.setState({
@@ -54,9 +61,8 @@ class RoomScreen extends Component {
   }
 
   //Function Add Room
-  postRoom = () => {
-    this.refs.AddRoom.close()
-    Axios({
+  postRoom = async () => {
+    await Axios({
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -69,14 +75,46 @@ class RoomScreen extends Component {
     })
       .then(res => {
         console.log(res);
-        this.props.navigation.navigate('RoomScreen')
+        this.refs.AddRoom.close()
+        // this.props.navigation.navigate('RoomScreen')
+        this.onLoad();
       })
       .catch(err => {
         console.log(err);
       });
-      this.props.navigation.navigate('RoomScreen')
-      this.componentDidMount()
+      // this.props.navigation.navigate('RoomScreen')
   };
+
+  //Function Edit Room
+  handleOpenEditRoom(id,name){
+    // alert(id)
+    this.refs.EditRoom.open()
+    this.setState({id:id})
+  }
+
+  handleEditRoom = async () => {
+    this.refs.EditRoom.close()
+    await Axios({
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.token}`,
+      },
+      url: `http://192.168.1.22:5000/api/v2/room/${this.state.id}`,
+      data: {
+        name: this.state.roomName,
+      },
+    })
+    .then(res => {
+      console.log(res);
+      // this.props.navigation.navigate('RoomScreen')
+    })
+    .catch(err => {
+      console.log(err);
+    });
+    // this.props.navigation.navigate('RoomScreen')
+    this.componentDidMount()
+  }
 
   render(){
       console.log('>>>>>>>>>>>>>',this.state.dataRooms)
@@ -91,7 +129,7 @@ class RoomScreen extends Component {
               </View>
               <FlatList data={this.state.dataRooms} numColumns={3} keyExtractor={(item, index) => index} renderItem={({ item: rowData }) => {
                 return(
-                  <TouchableOpacity buttonDisabled={true} >
+                  <TouchableOpacity buttonDisabled={true}  onPress={() => this.handleOpenEditRoom(rowData.id, rowData.name)}>
                     <View style={{ width: 100, height: 100, justifyContent: 'center', marginHorizontal: 10, marginVertical: 15, backgroundColor: "#1b5e20"}}>
                       <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                           <Text style={{ textAlign: 'center', textTransform: 'capitalize', fontWeight: 'bold' }}>
@@ -104,7 +142,7 @@ class RoomScreen extends Component {
                 }}
               />
 
-              {/*Modal with TextInput*/}
+              {/*Modal Add Rooom*/}
               <Modal
                 ref={'AddRoom'}
                 style={[styles.modal, styles.modal4]}
@@ -130,6 +168,40 @@ class RoomScreen extends Component {
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => this.refs.AddRoom.close()}>
+                    <View style={{backgroundColor: "#a30000", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text>Cancel</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                </View>
+              </Modal>
+
+              {/*Modal Edit Rooom*/}
+              <Modal
+                ref={'EditRoom'}
+                style={[styles.modal, styles.modal4]}
+                position={'center'}>
+                <View>
+                  <Text style={styles.text}>
+                    Text Input in Modal
+                  </Text>
+                  <TextInput onChangeText={name => this.setState({roomName: name})}
+                    placeholder="Room Name"
+                    style={{ 
+                      height: 50, 
+                      width: 250, 
+                      backgroundColor: '#DDDDDD',
+                      marginTop:16
+                    }}
+                  />
+
+                  <TouchableOpacity onPress={() => this.handleEditRoom()}>
+                    <View style={{backgroundColor: "#387002", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text>Save</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => this.refs.EditRoom.close()}>
                     <View style={{backgroundColor: "#a30000", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
                         <Text>Cancel</Text>
                     </View>
