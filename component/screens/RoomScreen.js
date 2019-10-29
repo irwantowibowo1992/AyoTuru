@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity, TextInput } from 'react-native'
 import Axios from 'axios'
+
+import Modal from 'react-native-modalbox';
 
 class RoomScreen extends Component {
 
@@ -8,9 +10,35 @@ class RoomScreen extends Component {
     super(props)
 
     this.state = {
-        dataRooms: []
+      // For Open and Close Modal
+      isOpen: false,
+      isDisabled: false,
+      swipeToClose: true,
+      sliderValue: 0.3,
+
+      input: '',
+
+
+      dataRooms: []
     }
   }
+
+  onClose() {
+    //called on modal closed
+    console.log('Modal just closed');
+  }
+ 
+  onOpen() {
+    //called on modal opened
+    console.log('Modal just opened');
+  }
+ 
+  onClosingState(state) {
+    //called on modal close/open of the swipe to close change
+    console.log('Open/Close of the SwipeToClose just changed');
+  }
+
+
 
   componentDidMount(){
     this.fatchData()
@@ -25,6 +53,31 @@ class RoomScreen extends Component {
     })
   }
 
+  //Function Add Room
+  postRoom = () => {
+    this.refs.AddRoom.close()
+    Axios({
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.token}`,
+      },
+      url: 'http://192.168.1.22:5000/api/v2/room',
+      data: {
+        name: this.state.input,
+      },
+    })
+      .then(res => {
+        console.log(res);
+        this.props.navigation.navigate('RoomScreen')
+      })
+      .catch(err => {
+        console.log(err);
+      });
+      this.props.navigation.navigate('RoomScreen')
+      this.componentDidMount()
+  };
+
   render(){
       console.log('>>>>>>>>>>>>>',this.state.dataRooms)
       return(
@@ -32,14 +85,14 @@ class RoomScreen extends Component {
           <View style={{alignItems: 'center'}}>
             <View>
               <View>
-                  <TouchableOpacity style={{backgroundColor: 'green', height: 50, marginHorizontal: 5, marginVertical: 5, justifyContent: 'center', alignItems: 'center'}}>
+                  <TouchableOpacity onPress={() => this.refs.AddRoom.open()} style={{backgroundColor: 'green', height: 50, marginHorizontal: 10, marginVertical: 5, justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={{fontSize: 16, fontWeight: 'bold'}}>Add Room</Text>
                   </TouchableOpacity>
               </View>
               <FlatList data={this.state.dataRooms} numColumns={3} keyExtractor={(item, index) => index} renderItem={({ item: rowData }) => {
                 return(
                   <TouchableOpacity buttonDisabled={true} >
-                    <View style={{ width: 100, height: 100, justifyContent: 'center', marginHorizontal: 10, marginVertical: 15, backgroundColor: "green"}}>
+                    <View style={{ width: 100, height: 100, justifyContent: 'center', marginHorizontal: 10, marginVertical: 15, backgroundColor: "#1b5e20"}}>
                       <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                           <Text style={{ textAlign: 'center', textTransform: 'capitalize', fontWeight: 'bold' }}>
                               {rowData.name}
@@ -50,6 +103,40 @@ class RoomScreen extends Component {
                 )
                 }}
               />
+
+              {/*Modal with TextInput*/}
+              <Modal
+                ref={'AddRoom'}
+                style={[styles.modal, styles.modal4]}
+                position={'center'}>
+                <View>
+                  <Text style={styles.text}>
+                    Text Input in Modal
+                  </Text>
+                  <TextInput onChangeText={room => this.setState({input: room})}
+                    placeholder="Room Name"
+                    style={{ 
+                      height: 50, 
+                      width: 250, 
+                      backgroundColor: '#DDDDDD',
+                      marginTop:16
+                    }}
+                  />
+
+                  <TouchableOpacity onPress={() => this.postRoom()}>
+                    <View style={{backgroundColor: "#387002", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text>Save</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => this.refs.AddRoom.close()}>
+                    <View style={{backgroundColor: "#a30000", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text>Cancel</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                </View>
+              </Modal>
             </View>
           </View>
         </View>
@@ -58,3 +145,40 @@ class RoomScreen extends Component {
 }
 
 export default RoomScreen
+
+const styles = StyleSheet.create({
+  wrapper: {
+    paddingTop: 50,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modal4: {
+    height: 300,
+    width: 300,
+  },
+  text: {
+    color: 'black',
+    fontSize: 22,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: 'green',
+    width: 300,
+    marginTop: 16,
+    textAlign: 'center',
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    margin: 10,
+    color: '#d0d0d0',
+  },
+});
