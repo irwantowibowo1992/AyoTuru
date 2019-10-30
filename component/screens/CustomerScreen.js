@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity, TextInput, SafeAreaView } from 'react-native'
+import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity, TextInput, AsyncStorage } from 'react-native'
 import Axios from 'axios'
 
 import Modal from 'react-native-modalbox';
@@ -23,6 +23,7 @@ class CustomerScreen extends Component {
       image: 'https://forums.steamrep.com/data/avatars/l/70/70889.jpg?1420358208',
 
       id: '',
+      myToken: '',
 
 
       dataCustomers: []
@@ -44,12 +45,22 @@ class CustomerScreen extends Component {
     console.log('Open/Close of the SwipeToClose just changed');
   }
 
-  componentDidMount(){
+  async componentDidMount(){
+    this.setState({
+      myToken: await AsyncStorage.getItem('myToken'),
+    })
     this.onLoad();
   }
 
-  onLoad = () => {
-    Axios.get(`http://192.168.1.22:5000/api/v2/customers`).then(res => {
+  onLoad = async () => {
+    await Axios({
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.myToken}`,
+      },
+      url: `http://192.168.1.22:5000/api/v2/customers`,
+    }).then(res => {
       console.log( '++++++++++++++++++++++++++++++++++++', res.data)
       this.setState({
         dataCustomers:res.data
@@ -63,7 +74,7 @@ class CustomerScreen extends Component {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${this.state.token}`,
+        authorization: `Bearer ${this.state.myToken}`,
       },
       url: 'http://192.168.1.22:5000/api/v2/customer',
       data: {
@@ -99,7 +110,7 @@ class CustomerScreen extends Component {
       method: 'PUT',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${this.state.token}`,
+        authorization: `Bearer ${this.state.myToken}`,
       },
       url: `http://192.168.1.22:5000/api/v2/customer/${this.state.id}`,
       data: {
@@ -239,7 +250,7 @@ class CustomerScreen extends Component {
                     </View>
                   </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => this.refs.EditRoom.close()}>
+                  <TouchableOpacity onPress={() => this.refs.EditCustomer.close()}>
                     <View style={{backgroundColor: "#a30000", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
                         <Text>Cancel</Text>
                     </View>

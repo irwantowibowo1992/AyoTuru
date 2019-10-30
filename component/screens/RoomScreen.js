@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity, TextInput, AsyncStorage } from 'react-native'
 import Axios from 'axios'
 
 import Modal from 'react-native-modalbox';
@@ -20,6 +20,7 @@ class RoomScreen extends Component {
 
       roomName: '',
       id: '',
+      myToken: '',
 
 
       dataRooms: []
@@ -47,12 +48,22 @@ class RoomScreen extends Component {
   //   this.fatchData()
   // }
 
-  componentDidMount(){
+  async componentDidMount(){
+    this.setState({
+      myToken: await AsyncStorage.getItem('myToken'),
+    })
     this.onLoad();
   }
 
-  onLoad = () => {
-    Axios.get(`http://192.168.1.22:5000/api/v2/rooms`).then(res => {
+  onLoad = async () => {
+    await Axios({
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.myToken}`,
+      },
+      url: `http://192.168.1.22:5000/api/v2/rooms`,
+    }).then(res => {
       console.log( '++++++++++++++++++++++++++++++++++++', res.data)
       this.setState({
         dataRooms:res.data
@@ -66,7 +77,7 @@ class RoomScreen extends Component {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${this.state.token}`,
+        authorization: `Bearer ${this.state.myToken}`,
       },
       url: 'http://192.168.1.22:5000/api/v2/room',
       data: {
@@ -99,7 +110,7 @@ class RoomScreen extends Component {
       method: 'PUT',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${this.state.token}`,
+        authorization: `Bearer ${this.state.myToken}`,
       },
       url: `http://192.168.1.22:5000/api/v2/room/${this.state.id}`,
       data: {
