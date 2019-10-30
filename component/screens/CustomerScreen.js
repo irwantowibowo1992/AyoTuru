@@ -85,6 +85,40 @@ class CustomerScreen extends Component {
       // this.props.navigation.navigate('RoomScreen')
   };
 
+  //Function Open Edit Room
+  handleOpenEditCustomer(id,name,identity_number,phone_number){
+    // alert(id)
+    this.refs.EditCustomer.open()
+    this.setState({id:id})
+  }
+
+  //Function Edit Room
+  handleEditCustomer = async () => {
+    this.refs.EditCustomer.close()
+    await Axios({
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.token}`,
+      },
+      url: `http://192.168.1.22:5000/api/v2/customer/${this.state.id}`,
+      data: {
+        name: this.state.customerName,
+        identity_number: this.state.identityNumber,
+        phone_number: this.state.phoneNumber
+      },
+    })
+    .then(res => {
+      console.log(res);
+      // this.props.navigation.navigate('RoomScreen')
+    })
+    .catch(err => {
+      console.log(err);
+    });
+    // this.props.navigation.navigate('RoomScreen')
+    this.componentDidMount()
+  }
+
   render(){
       console.log('>>>>>>>>>>>>>',this.state.dataCustomers)
       return(
@@ -165,7 +199,54 @@ class CustomerScreen extends Component {
                   </View>
               </Modal>
 
-              
+              {/*Modal Edit Rooom*/}
+              <Modal
+                ref={'EditCustomer'}
+                style={[styles.modal, styles.modal4]}
+                position={'center'}>
+                <View>
+                  <TextInput onChangeText={customerName => this.setState({customerName})}
+                    placeholder="Customer Name"
+                    style={{ 
+                      height: 50, 
+                      width: 250, 
+                      backgroundColor: '#DDDDDD',
+                      marginTop:16
+                    }}
+                  />
+                  <TextInput keyboardType='numeric' onChangeText={identityNumber => this.setState({identityNumber})}
+                    placeholder="Identity Number"
+                    style={{ 
+                      height: 50, 
+                      width: 250, 
+                      backgroundColor: '#DDDDDD',
+                      marginTop:16
+                    }}
+                  />
+                  <TextInput keyboardType='numeric' onChangeText={phoneNumber => this.setState({phoneNumber})}
+                    placeholder="Phone Number"
+                    style={{ 
+                      height: 50, 
+                      width: 250, 
+                      backgroundColor: '#DDDDDD',
+                      marginTop:16
+                    }} 
+                  />
+
+                  <TouchableOpacity onPress={() => this.handleEditCustomer()}>
+                    <View style={{backgroundColor: "#387002", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text>Save</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => this.refs.EditRoom.close()}>
+                    <View style={{backgroundColor: "#a30000", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text>Cancel</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                </View>
+              </Modal>
             </View>
               
     )
