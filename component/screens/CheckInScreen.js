@@ -10,8 +10,12 @@ import {
   TextInput,
   AsyncStorage,
   Modal,
+  Picker,
 } from 'react-native';
 import Axios from 'axios';
+
+// require moment
+const moment = require('moment');
 
 // import Modal from 'react-native-modalbox';
 
@@ -24,21 +28,91 @@ class RoomScreen extends Component {
       checkInModalVisible: false,
 
       input: '', //handle Data input Add Room
-
+      datacustomers: '',
       roomName: '',
+      customerName: '',
       id: '',
       myToken: '',
 
       dataBookings: [],
+      duration: '',
+      checkInRoomId: '',
+      checkInRoomName: '',
+      userId: '0',
     };
+  }
+
+  // Handle Duration (Langkah 2 Menambah Durasi)
+  handleDurationInput = text => {
+    this.setState({
+      duration: text,
+    });
+  };
+
+  //   test Moment.js (Langkah 1 Menambah Durasi)
+  difTime = () => {
+    console.log('waktu hari ini : ' + moment().format('HH:mm'));
+    console.log('penambahan waktu : ' + this.state.duration);
+
+    // (Langkah 3 menambah Durasi)
+    console.log(
+      'End Time : ' +
+        moment()
+          .add(this.state.duration, 'minutes')
+          .format('YYYY/MM/DD HH:mm:ss'),
+    );
+  };
+
+  //ADD CHECKOUT HANDLE (Langkah 1 Add Check In Durasi)
+  checkInAddBtnHandler = async id => {
+    const data = {
+      customrId: this.state.userId,
+      roomId: this.state.checkInRoomId,
+      isBooked: 1,
+      isDone: 0,
+      duration: this.state.duration,
+      order_end_time: moment()
+        .add(this.state.duration, 'minutes')
+        .format('YYYY/MM/DD HH:mm:ss'),
+    };
+
+    const config = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.myToken}`,
+      },
+      data,
+    };
+
+    // console.log(data);
+
+    await Axios('http://192.168.1.22:5000/api/v2/booking', config).then(res => {
+      console.log(res.data);
+      this.setCheckInModalVisible(false);
+      this.onLoad();
+    });
+  };
+
+  //SHOW CHECK IN MODAL
+  setCheckInModalVisible(visible, booking) {
+    this.setState({
+      editModalVisible: visible,
+      id: booking ? booking.id : '',
+      customerName: booking ? booking.name : '',
+    });
   }
 
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
   }
 
-  setCheckInModalVisible(visible) {
-    this.setState({checkInModalVisible: visible});
+  setCheckInModalVisible(visible, roomId, roomName) {
+    this.setState({
+      checkInModalVisible: visible,
+      checkInRoomId: roomId,
+      checkInRoomName: roomName,
+    });
   }
 
   async componentDidMount() {
@@ -48,19 +122,47 @@ class RoomScreen extends Component {
     this.onLoad();
   }
 
-  onLoad = async () => {
-    await Axios({
+  getCostumerData = async () => {
+    const costumerData = await Axios({
       method: 'GET',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.22:5000/api/v2/booking`,
-    }).then(res => {
-      console.log('++++++++++++++++++++++++++++++++++++', res.data);
-      this.setState({
-        dataBookings: res.data,
-      });
+      url: `http://192.168.1.22:5000/api/v2/customers`,
+    });
+    this.setState({
+      dataCustomers: costumerData,
+    });
+  };
+
+  onLoad = async () => {
+    const bookingData = await Axios({
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.myToken}`,
+      },
+      url: `http://192.168.1.22:5000/api/v2/bookings`,
+    });
+
+    const costumerData = await Axios({
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.myToken}`,
+      },
+      url: `http://192.168.1.22:5000/api/v2/customers`,
+    });
+    //   console.log('++++++++++++++++++++++++++++++++++++', res.data);
+    await this.setState({
+      dataBookings: bookingData.data,
+      dataCustomers: costumerData.data,
+    });
+
+    //Mengambil data customer
+    this.state.dataCustomers.map(x => {
+      console.log('1111111111111111111111111111', x);
     });
   };
 
@@ -130,7 +232,11 @@ class RoomScreen extends Component {
                     <TouchableOpacity
                       buttonDisabled={true}
                       onPress={() =>
-                        this.setCheckInModalVisible(true, rowData)
+                        this.setCheckInModalVisible(
+                          true,
+                          rowData.id,
+                          rowData.name,
+                        )
                       }>
                       <View style={bookRoomStyle}>
                         <View
@@ -196,20 +302,41 @@ class RoomScreen extends Component {
               onRequestClose={() => {
                 Alert.alert('Modal has been closed.');
               }}>
-              {/* <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <View style={{justifyContent: 'center', alignItems: 'center'}}>
                 <TextInput
                   onChangeText={room => this.setState({roomName: room})}
                   placeholder="Room Name"
-                  value={this.state.roomName}
+                  value={this.state.checkInRoomName}
                   style={styles.textInput}
                 />
-              </View> */}
+
+                <Picker
+                  selectedValue={this.state.userId}
+                  style={{height: 50, width: '100%'}}
+                  onValueChange={(itemValue, itemIndex) =>
+                    this.setState({userId: itemValue})
+                  }>
+                  <Picker.Item label="Pilih User" value="0" />
+
+                  {this.state.dataCustomers &&
+                    this.state.dataCustomers.map(x => {
+                      return <Picker.Item label={x['name']} value={x.id} />;
+                    })}
+                </Picker>
+
+                <TextInput
+                  onChangeText={text => this.handleDurationInput(text)}
+                  placeholder="Duration (Minutes)"
+                  value={this.state.duration}
+                  style={styles.textInput}
+                />
+              </View>
 
               <Text>Ini Modal Checkin</Text>
               <View>
-                <TouchableOpacity onPress={() => this.handleEditRoom()}>
+                <TouchableOpacity onPress={() => this.checkInAddBtnHandler()}>
                   <View style={styles.btnSave}>
-                    <Text>Save</Text>
+                    <Text>CheckIn</Text>
                   </View>
                 </TouchableOpacity>
 
