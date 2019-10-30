@@ -1,22 +1,26 @@
-import React, { Component } from 'react'
-import { View, Image, StyleSheet } from 'react-native'
+import React, {Component} from 'react';
+import {View, Image, StyleSheet} from 'react-native';
 
-import logoImage from '../../image/ayoTuru.png'
+import logoImage from '../../image/ayoTuru.png';
 
 class SplashScreen extends Component {
-    render(){
-        return(
-            <View style={styles.container}>
-                <Image source={logoImage} style={styles.logo} />
-            </View>
-        )
-    }
+  render() {
+    return (
+      <View style={styles.container}>
+        <Image source={logoImage} style={styles.logo} />
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    }
-})
+  container: {
+    flex: 1,
+  },
+  logo: {
+    height: '100%',
+    width: 400,
+  },
+});
 
-export default SplashScreen
+export default SplashScreen;

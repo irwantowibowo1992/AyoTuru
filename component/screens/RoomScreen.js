@@ -1,20 +1,27 @@
-import React, { Component } from 'react'
-import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity, TextInput, AsyncStorage } from 'react-native'
-import Axios from 'axios'
+import React, {Component} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  Image,
+  FlatList,
+  TouchableOpacity,
+  TextInput,
+  AsyncStorage,
+  Modal,
+} from 'react-native';
+import Axios from 'axios';
 
-import Modal from 'react-native-modalbox';
+// import Modal from 'react-native-modalbox';
 
 class RoomScreen extends Component {
-
-  constructor(props){
-    super(props)
+  constructor(props) {
+    super(props);
 
     this.state = {
-      // For Open and Close Modal
-      isOpen: false,
-      isDisabled: false,
-      swipeToClose: true,
-      sliderValue: 0.3,
+      modalVisible: false, //modal bawaan react-native
+      editModalVisible: false,
 
       input: '', //handle Data input Add Room
 
@@ -22,36 +29,27 @@ class RoomScreen extends Component {
       id: '',
       myToken: '',
 
-
-      dataRooms: []
-    }
+      dataRooms: [],
+    };
   }
 
-  onClose() {
-    //called on modal closed
-    console.log('Modal just closed');
-  }
- 
-  onOpen() {
-    //called on modal opened
-    console.log('Modal just opened');
-  }
- 
-  onClosingState(state) {
-    //called on modal close/open of the swipe to close change
-    console.log('Open/Close of the SwipeToClose just changed');
+  //function modal
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
   }
 
+  setEditModalVisible(visible, room) {
+    this.setState({
+      editModalVisible: visible,
+      id: room ? room.id : '',
+      roomName: room ? room.name : '',
+    });
+  }
 
-
-  // componentDidMount(){
-  //   this.fatchData()
-  // }
-
-  async componentDidMount(){
+  async componentDidMount() {
     this.setState({
       myToken: await AsyncStorage.getItem('myToken'),
-    })
+    });
     this.onLoad();
   }
 
@@ -64,14 +62,14 @@ class RoomScreen extends Component {
       },
       url: `http://192.168.1.22:5000/api/v2/rooms`,
     }).then(res => {
-      console.log( '++++++++++++++++++++++++++++++++++++', res.data)
+      console.log('++++++++++++++++++++++++++++++++++++', res.data);
       this.setState({
-        dataRooms:res.data
-      })
-    })
-  }
+        dataRooms: res.data,
+      });
+    });
+  };
 
-  //Function Add Room
+  //FUNCTION ADD ROOM
   postRoom = async () => {
     await Axios({
       method: 'POST',
@@ -85,27 +83,17 @@ class RoomScreen extends Component {
       },
     })
       .then(res => {
-        console.log(res);
-        this.refs.AddRoom.close()
-        // this.props.navigation.navigate('RoomScreen')
+        console.log(res.data);
+        this.setModalVisible(false);
         this.onLoad();
       })
       .catch(err => {
         console.log(err);
       });
-      // this.props.navigation.navigate('RoomScreen')
   };
 
-  //Function Open Edit Room
-  handleOpenEditRoom(id,name){
-    // alert(id)
-    this.refs.EditRoom.open()
-    this.setState({id:id})
-  }
-
-  //Function Edit Room
+  //FUNCTION EDIT ROOM
   handleEditRoom = async () => {
-    this.refs.EditRoom.close()
     await Axios({
       method: 'PUT',
       headers: {
@@ -117,149 +105,172 @@ class RoomScreen extends Component {
         name: this.state.roomName,
       },
     })
-    .then(res => {
-      console.log(res);
-      // this.props.navigation.navigate('RoomScreen')
-    })
-    .catch(err => {
-      console.log(err);
-    });
-    // this.props.navigation.navigate('RoomScreen')
-    this.componentDidMount()
-  }
+      .then(res => {
+        console.log(res.data);
+        this.setEditModalVisible(false);
+        this.onLoad();
+      })
+      .catch(err => {
+        this.setEditModalVisible(false);
+        console.log(err.message);
+      });
+    this.componentDidMount();
+  };
 
-  render(){
-      console.log('>>>>>>>>>>>>>',this.state.dataRooms)
-      return(
-        <View>
-          <View style={{alignItems: 'center'}}>
+  render() {
+    console.log('>>>>>>>>>>>>>', this.state.dataRooms);
+    return (
+      <View>
+        <View style={{alignItems: 'center'}}>
+          <View>
             <View>
-              <View>
-                  <TouchableOpacity onPress={() => this.refs.AddRoom.open()} style={{backgroundColor: 'green', height: 50, marginHorizontal: 10, marginVertical: 5, justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={{fontSize: 16, fontWeight: 'bold'}}>Add Room</Text>
-                  </TouchableOpacity>
-              </View>
-              <FlatList data={this.state.dataRooms} numColumns={3} keyExtractor={(item, index) => index} renderItem={({ item: rowData }) => {
-                return(
-                  <TouchableOpacity buttonDisabled={true}  onPress={() => this.handleOpenEditRoom(rowData.id, rowData.name)}>
-                    <View style={{ width: 100, height: 100, justifyContent: 'center', marginHorizontal: 10, marginVertical: 15, backgroundColor: "#1b5e20"}}>
-                      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                          <Text style={{ textAlign: 'center', textTransform: 'capitalize', fontWeight: 'bold' }}>
-                              {rowData.name}
-                          </Text>
+              <TouchableOpacity
+                onPress={() => this.setModalVisible(true)}
+                style={{
+                  backgroundColor: 'green',
+                  height: 50,
+                  marginHorizontal: 10,
+                  marginVertical: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text style={{fontSize: 16, fontWeight: 'bold'}}>Add Room</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={this.state.dataRooms}
+              numColumns={3}
+              keyExtractor={(item, index) => index}
+              renderItem={({item: rowData}) => {
+                return (
+                  <TouchableOpacity
+                    buttonDisabled={true}
+                    onPress={() => this.setEditModalVisible(true, rowData)}>
+                    <View
+                      style={{
+                        width: 100,
+                        height: 100,
+                        justifyContent: 'center',
+                        marginHorizontal: 10,
+                        marginVertical: 15,
+                        backgroundColor: '#1b5e20',
+                      }}>
+                      <View
+                        style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            textAlign: 'center',
+                            textTransform: 'capitalize',
+                            fontWeight: 'bold',
+                          }}>
+                          {rowData.name}
+                        </Text>
                       </View>
                     </View>
                   </TouchableOpacity>
-                )
-                }}
-              />
+                );
+              }}
+            />
 
-              {/*Modal Add Rooom*/}
-              <Modal
-                ref={'AddRoom'}
-                style={[styles.modal, styles.modal4]}
-                position={'center'}>
-                <View>
-                  <TextInput onChangeText={room => this.setState({input: room})}
-                    placeholder="Room Name"
-                    style={{ 
-                      height: 50, 
-                      width: 250, 
-                      backgroundColor: '#DDDDDD',
-                      marginTop:16
-                    }}
-                  />
+            {/*Modal Add Rooom*/}
+            <Modal
+              animationType="slide"
+              transparent={false}
+              style={styles.modal}
+              visible={this.state.modalVisible}
+              onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+              }}>
+              <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                <TextInput
+                  onChangeText={room => this.setState({input: room})}
+                  placeholder="Room Name"
+                  style={styles.textInput}
+                />
+              </View>
+              <View>
+                <TouchableOpacity onPress={() => this.postRoom()}>
+                  <View style={styles.btnSave}>
+                    <Text>Save</Text>
+                  </View>
+                </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => this.postRoom()}>
-                    <View style={{backgroundColor: "#387002", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text>Save</Text>
-                    </View>
-                  </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.setModalVisible(false)}>
+                  <View style={styles.btnCancel}>
+                    <Text>Cancel</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </Modal>
 
-                  <TouchableOpacity onPress={() => this.refs.AddRoom.close()}>
-                    <View style={{backgroundColor: "#a30000", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text>Cancel</Text>
-                    </View>
-                  </TouchableOpacity>
+            {/*Modal Edit Rooom*/}
+            <Modal
+              animationType="slide"
+              transparent={false}
+              style={styles.modal}
+              visible={this.state.editModalVisible}
+              onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+              }}>
+              <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                <TextInput
+                  onChangeText={room => this.setState({roomName: room})}
+                  placeholder="Room Name"
+                  value={this.state.roomName}
+                  style={styles.textInput}
+                />
+              </View>
+              <View>
+                <TouchableOpacity onPress={() => this.handleEditRoom()}>
+                  <View style={styles.btnSave}>
+                    <Text>Save</Text>
+                  </View>
+                </TouchableOpacity>
 
-                </View>
-              </Modal>
-
-              {/*Modal Edit Rooom*/}
-              <Modal
-                ref={'EditRoom'}
-                style={[styles.modal, styles.modal4]}
-                position={'center'}>
-                <View>
-                  <Text style={styles.text}>
-                    Text Input in Modal
-                  </Text>
-                  <TextInput onChangeText={name => this.setState({roomName: name})}
-                    placeholder="Room Name"
-                    style={{ 
-                      height: 50, 
-                      width: 250, 
-                      backgroundColor: '#DDDDDD',
-                      marginTop:16
-                    }}
-                  />
-
-                  <TouchableOpacity onPress={() => this.handleEditRoom()}>
-                    <View style={{backgroundColor: "#387002", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text>Save</Text>
-                    </View>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity onPress={() => this.refs.EditRoom.close()}>
-                    <View style={{backgroundColor: "#a30000", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text>Cancel</Text>
-                    </View>
-                  </TouchableOpacity>
-
-                </View>
-              </Modal>
-            </View>
+                <TouchableOpacity
+                  onPress={() => this.setEditModalVisible(false)}>
+                  <View style={styles.btnCancel}>
+                    <Text>Cancel</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </Modal>
           </View>
         </View>
-      )
+      </View>
+    );
   }
 }
 
-export default RoomScreen
+export default RoomScreen;
 
 const styles = StyleSheet.create({
-  wrapper: {
-    paddingTop: 50,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modal: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modal4: {
-    height: 300,
-    width: 300,
-  },
-  text: {
-    color: 'black',
-    fontSize: 22,
-    textAlign: 'center',
-  },
-  button: {
-    backgroundColor: 'green',
-    width: 300,
+  textInput: {
+    height: 50,
+    width: 325,
+    backgroundColor: '#DDDDDD',
     marginTop: 16,
     textAlign: 'center',
-    marginLeft: 10,
-    marginRight: 10,
   },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    margin: 10,
-    color: '#d0d0d0',
+
+  btnSave: {
+    backgroundColor: '#387002',
+    marginTop: 20,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 15,
+  },
+
+  btnCancel: {
+    backgroundColor: '#a30000',
+    marginTop: 20,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 15,
   },
 });
