@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, StyleSheet, Button, Image, FlatList, TouchableOpacity, TextInput, SafeAreaView } from 'react-native'
 import Axios from 'axios'
 
 import Modal from 'react-native-modalbox';
+// import { ScrollView } from 'react-native-gesture-handler';
 
-class RoomScreen extends Component {
+class CustomerScreen extends Component {
 
   constructor(props){
     super(props)
@@ -56,50 +57,122 @@ class RoomScreen extends Component {
     })
   }
 
+  //Fanction Add Customer
+  postCustomer = async () => {
+    await Axios({
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.token}`,
+      },
+      url: 'http://192.168.1.22:5000/api/v2/customer',
+      data: {
+        name: this.state.customerName,
+        identity_number: this.state.identityNumber,
+        phone_number: this.state.phoneNumber,
+        image: this.state.image
+      },
+    })
+      .then(res => {
+        console.log(res);
+        this.refs.AddCustomer.close()
+        // this.props.navigation.navigate('RoomScreen')
+        this.onLoad();
+      })
+      .catch(err => {
+        console.log(err);
+      });
+      // this.props.navigation.navigate('RoomScreen')
+  };
+
   render(){
       console.log('>>>>>>>>>>>>>',this.state.dataCustomers)
       return(
-      <View>
-        <View>
-          <View>
-            <View>
+            <View style={{flex:1}}>
               <TouchableOpacity onPress={() => this.refs.AddCustomer.open()} style={{backgroundColor: 'green', height: 50, marginHorizontal: 5, borderRadius:3, marginVertical: 5, justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={{fontSize: 16, fontWeight: 'bold', color: "#FFF"}}>Add Customer</Text>
               </TouchableOpacity>
-            </View>
-            <FlatList data={this.state.dataCustomers} keyExtractor={(item, index) => index} renderItem={({ item: rowData }) => {
-              return(
-                <TouchableOpacity onPress={() => this.handleOpenEditCustomer(rowData.id, rowData.name, rowData.identity_number, rowData.phone_number)}>
-                  <View style={styles.customerContainer}>
-                    <View>
-                        <Image source={{uri:rowData.image}} style ={{height: 120, width: 120, borderRadius: 100}} />
+              <FlatList data={this.state.dataCustomers} keyExtractor={(item, index) => index} renderItem={({ item: rowData }) => {
+                return(
+                  <TouchableOpacity onPress={() => this.handleOpenEditCustomer(rowData.id, rowData.name, rowData.identity_number, rowData.phone_number)}>
+                    <View style={styles.customerContainer}>
+                      <View>
+                          <Image source={{uri:rowData.image}} style ={{height: 100, width: 100, borderRadius: 100}} />
+                      </View>
+                      <View style={{ justifyContent: 'center', marginLeft: 15 }}>
+                        <Text style={styles.textCustomer}>
+                            {rowData.name}
+                        </Text>
+                        <Text style={styles.textCustomer}>
+                            {rowData.identity_number}
+                        </Text>
+                        <Text style={styles.textCustomer}>
+                            {rowData.phone_number}
+                        </Text>
+                      </View>
                     </View>
-                    <View style={{ justifyContent: 'center', marginLeft: 15 }}>
-                      <Text style={styles.textCustomer}>
-                          {rowData.name}
-                      </Text>
-                      <Text style={styles.textCustomer}>
-                          {rowData.identity_number}
-                      </Text>
-                      <Text style={styles.textCustomer}>
-                          {rowData.phone_number}
-                      </Text>
-                    </View>
+                  </TouchableOpacity>
+                )
+                }}
+              />
+
+              {/*Modal Add Rooom*/}
+              <Modal
+                  ref={'AddCustomer'}
+                  style={[styles.modal, styles.modal4]}
+                  position={'center'}>
+                  <View>
+                    <TextInput onChangeText={customerName => this.setState({customerName})}
+                      placeholder="Customer Name"
+                      style={{ 
+                        height: 50, 
+                        width: 250, 
+                        backgroundColor: '#DDDDDD',
+                        marginTop:16
+                      }}
+                    />
+                    <TextInput keyboardType='numeric' onChangeText={identityNumber => this.setState({identityNumber})}
+                      placeholder="Identity Number"
+                      style={{ 
+                        height: 50, 
+                        width: 250, 
+                        backgroundColor: '#DDDDDD',
+                        marginTop:16
+                      }}
+                    />
+                    <TextInput keyboardType='numeric' onChangeText={phoneNumber => this.setState({phoneNumber})}
+                      placeholder="Phone Number"
+                      style={{ 
+                        height: 50, 
+                        width: 250, 
+                        backgroundColor: '#DDDDDD',
+                        marginTop:16
+                      }}
+                    />
+
+                    <TouchableOpacity onPress={() => this.postCustomer()}>
+                      <View style={{backgroundColor: "#387002", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
+                          <Text>Save</Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => this.refs.AddCustomer.close()}>
+                      <View style={{backgroundColor: "#a30000", marginTop: 20, height: 40, justifyContent: 'center', alignItems: 'center'}}>
+                          <Text>Cancel</Text>
+                      </View>
+                    </TouchableOpacity>
+
                   </View>
-                </TouchableOpacity>
-              )
-              }}
-            />
+              </Modal>
 
-
-          </View>
-        </View>
-      </View>
+              
+            </View>
+              
     )
   }
 }
 
-export default RoomScreen
+export default CustomerScreen
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -113,7 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modal4: {
-    height: 300,
+    height: 400,
     width: 300,
   },
   text: {
@@ -149,9 +222,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 1,
-    marginLeft: 5,
-    marginRight: 5,
-    marginTop: 10,
+    // marginLeft: 5,
+    // marginRight: 5,
+    // marginTop: 10,
   },
   textCustomer: {
     textTransform: 'capitalize', 
