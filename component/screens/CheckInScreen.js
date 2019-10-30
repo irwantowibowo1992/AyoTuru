@@ -154,7 +154,7 @@ class RoomScreen extends Component {
               }}
             />
 
-            {/*MODAL CHECKOUT*/}
+            {/*MODAL CHECKOUT ROOM*/}
             <Modal
               animationType="slide"
               transparent={false}
@@ -187,7 +187,7 @@ class RoomScreen extends Component {
               </View>
             </Modal>
 
-            {/*CHECKIN*/}
+            {/*MODAL CHECKIN ROOM*/}
             <Modal
               animationType="slide"
               transparent={false}
