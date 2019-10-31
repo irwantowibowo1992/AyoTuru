@@ -10,8 +10,18 @@ import {
   TextInput,
   AsyncStorage,
   Modal,
+  RefreshControl,
 } from 'react-native';
+import FAB from 'react-native-fab';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import Axios from 'axios';
+
+//Funtion Refresh Control
+function wait(timeout) {
+  return new Promise(resolve => {
+    setTimeout(resolve, timeout);
+  });
+}
 
 class CustomerScreen extends Component {
   constructor(props) {
@@ -25,7 +35,7 @@ class CustomerScreen extends Component {
       identityNumber: '',
       phoneNumber: '',
       image:
-        'https://forums.steamrep.com/data/avatars/l/70/70889.jpg?1420358208',
+        'https://s.kaskus.id/r540x540/images/2015/07/05/2555254_20150705030541.jpg',
 
       id: '',
       myToken: '',
@@ -130,21 +140,6 @@ class CustomerScreen extends Component {
     console.log('>>>>>>>>>>>>>', this.state.dataCustomers);
     return (
       <View style={{flex: 1}}>
-        <TouchableOpacity
-          onPress={() => this.setModalVisible(true)}
-          style={{
-            backgroundColor: 'green',
-            height: 50,
-            marginHorizontal: 5,
-            borderRadius: 3,
-            marginVertical: 5,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text style={{fontSize: 16, fontWeight: 'bold', color: '#FFF'}}>
-            Add Customer
-          </Text>
-        </TouchableOpacity>
         <FlatList
           data={this.state.dataCustomers}
           keyExtractor={(item, index) => index}
@@ -172,6 +167,14 @@ class CustomerScreen extends Component {
               </TouchableOpacity>
             );
           }}
+        />
+
+        <FAB
+          buttonColor="#69e2ff"
+          iconTextColor="#FFFFFF"
+          onClickAction={() => this.setModalVisible(true)}
+          visible={true}
+          iconTextComponent={<Icon name="plus" />}
         />
 
         {/*Modal Add Customer*/}
@@ -262,73 +265,6 @@ class CustomerScreen extends Component {
             </TouchableOpacity>
           </View>
         </Modal>
-
-        {/*Modal Edit Rooom*/}
-        {/* <Modal
-          ref={'EditCustomer'}
-          style={[styles.modal, styles.modal4]}
-          position={'center'}>
-          <View>
-            <TextInput
-              onChangeText={customerName => this.setState({customerName})}
-              placeholder="Customer Name"
-              style={{
-                height: 50,
-                width: 250,
-                backgroundColor: '#DDDDDD',
-                marginTop: 16,
-              }}
-            />
-            <TextInput
-              keyboardType="numeric"
-              onChangeText={identityNumber => this.setState({identityNumber})}
-              placeholder="Identity Number"
-              style={{
-                height: 50,
-                width: 250,
-                backgroundColor: '#DDDDDD',
-                marginTop: 16,
-              }}
-            />
-            <TextInput
-              keyboardType="numeric"
-              onChangeText={phoneNumber => this.setState({phoneNumber})}
-              placeholder="Phone Number"
-              style={{
-                height: 50,
-                width: 250,
-                backgroundColor: '#DDDDDD',
-                marginTop: 16,
-              }}
-            />
-
-            <TouchableOpacity onPress={() => this.handleEditCustomer()}>
-              <View
-                style={{
-                  backgroundColor: '#387002',
-                  marginTop: 20,
-                  height: 40,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text>Save</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => this.refs.EditCustomer.close()}>
-              <View
-                style={{
-                  backgroundColor: '#a30000',
-                  marginTop: 20,
-                  height: 40,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text>Cancel</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </Modal> */}
       </View>
     );
   }
@@ -365,20 +301,22 @@ const styles = StyleSheet.create({
   },
 
   btnSave: {
-    backgroundColor: '#387002',
+    backgroundColor: '#64dd17',
     marginTop: 20,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 15,
+    borderRadius: 5,
   },
 
   btnCancel: {
-    backgroundColor: '#a30000',
+    backgroundColor: '#ff3d00',
     marginTop: 20,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 15,
+    borderRadius: 5,
   },
 });

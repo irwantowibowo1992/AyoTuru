@@ -11,6 +11,8 @@ import {
   AsyncStorage,
   Modal,
 } from 'react-native';
+import FAB from 'react-native-fab';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import Axios from 'axios';
 
 // import Modal from 'react-native-modalbox';
@@ -123,20 +125,6 @@ class RoomScreen extends Component {
       <View>
         <View style={{alignItems: 'center'}}>
           <View>
-            <View>
-              <TouchableOpacity
-                onPress={() => this.setModalVisible(true)}
-                style={{
-                  backgroundColor: 'green',
-                  height: 50,
-                  marginHorizontal: 10,
-                  marginVertical: 5,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text style={{fontSize: 16, fontWeight: 'bold'}}>Add Room</Text>
-              </TouchableOpacity>
-            </View>
             <FlatList
               data={this.state.dataRooms}
               numColumns={3}
@@ -153,7 +141,8 @@ class RoomScreen extends Component {
                         justifyContent: 'center',
                         marginHorizontal: 10,
                         marginVertical: 15,
-                        backgroundColor: '#1b5e20',
+                        backgroundColor: '#00b0ff',
+                        borderRadius: 5,
                       }}>
                       <View
                         style={{
@@ -173,6 +162,14 @@ class RoomScreen extends Component {
                   </TouchableOpacity>
                 );
               }}
+            />
+
+            <FAB
+              buttonColor="#69e2ff"
+              iconTextColor="#FFFFFF"
+              onClickAction={() => this.setModalVisible(true)}
+              visible={true}
+              iconTextComponent={<Icon name="plus" />}
             />
 
             {/*Modal Add Rooom*/}
@@ -257,20 +254,22 @@ const styles = StyleSheet.create({
   },
 
   btnSave: {
-    backgroundColor: '#387002',
+    backgroundColor: '#64dd17',
     marginTop: 20,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 15,
+    borderRadius: 5,
   },
 
   btnCancel: {
-    backgroundColor: '#a30000',
+    backgroundColor: '#ff3d00',
     marginTop: 20,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 15,
+    borderRadius: 5,
   },
 });

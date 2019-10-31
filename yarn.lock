@@ -5528,6 +5528,13 @@ react-native-easy-grid@0.2.2:
   dependencies:
     lodash "^4.17.15"
 
+react-native-fab@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/react-native-fab/-/react-native-fab-1.0.9.tgz#6f8c8982c55c4aa8e4d5b7fe55e08dc7ca4deb31"
+  integrity sha512-/wIFBPbkc3toZre4H4G4XMAAjIJ639k7S8EVQ7+8RHwVk7qc2H5Go4PaU5Z6o9D2vsmDs+Q7kWaqRAk9Ryh4ew==
+  dependencies:
+    prop-types "^15.5.10"
+
 react-native-gesture-handler@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-1.4.1.tgz#c38d9e57637b95e221722a79f2bafac62e3aeb21"

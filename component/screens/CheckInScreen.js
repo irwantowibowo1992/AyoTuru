@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import CountDown from 'react-native-countdown-component';
 import {
   View,
   Text,
@@ -39,6 +40,8 @@ class RoomScreen extends Component {
       checkInRoomId: '',
       checkInRoomName: '',
       userId: '0',
+
+      chekInModalDuration: '',
     };
   }
 
@@ -117,6 +120,25 @@ class RoomScreen extends Component {
     // );
   };
 
+  checkOutAutoHandler = async roomId => {
+    const checkoutConfig = {
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.myToken}`,
+      },
+    };
+
+    await Axios(
+      `http://192.168.1.22:5000/api/v2/booking/${roomId}`,
+      checkoutConfig,
+    ).then(res => {
+      this.setModalVisible(false);
+
+      this.onLoad();
+    });
+  };
+
   //SHOW CHECK IN MODAL
   setCheckInModalVisible(visible, booking) {
     this.setState({
@@ -126,10 +148,11 @@ class RoomScreen extends Component {
     });
   }
 
-  setModalVisible(visible, roomId) {
+  setModalVisible(visible, roomId, duration) {
     this.setState({
       modalVisible: visible,
       checkInRoomId: roomId,
+      chekInModalDuration: duration,
     });
   }
 
@@ -212,16 +235,17 @@ class RoomScreen extends Component {
                   justifyContent: 'center',
                   marginHorizontal: 10,
                   marginVertical: 15,
+                  borderRadius: 5,
                 };
 
                 // Where Room Is Not Booked
                 const bookAvail = {
-                  backgroundColor: '#1b5e20',
+                  backgroundColor: '#64dd17',
                 };
 
                 // Where Room Is Booked
                 const bookUnavail = {
-                  backgroundColor: 'grey',
+                  backgroundColor: '#546e7a',
                 };
                 const bookRoomStyle = [
                   bookStyle,
@@ -234,7 +258,13 @@ class RoomScreen extends Component {
                   return (
                     <TouchableOpacity
                       buttonDisabled={true}
-                      onPress={() => this.setModalVisible(true, rowData.id)}>
+                      onPress={() =>
+                        this.setModalVisible(
+                          true,
+                          rowData.id,
+                          rowData.booking.order_end_time,
+                        )
+                      }>
                       <View style={bookRoomStyle}>
                         <View
                           style={{
@@ -249,6 +279,26 @@ class RoomScreen extends Component {
                             }}>
                             {rowData.name}
                           </Text>
+                          <CountDown
+                            until={moment
+                              .duration(
+                                moment(rowData.booking.order_end_time).diff(
+                                  moment(),
+                                ),
+                              )
+                              .asSeconds()}
+                            onFinish={() =>
+                              // this.checkOutAutoHandler(rowData.booking.roomId)
+                              alert('Hello Finish')
+                            }
+                            onFinish={() =>
+                              this.checkOutAutoHandler(rowData.booking.roomId)
+                            }
+                            size={7}
+                            digitStyle={{backgroundColor: 'grey'}}
+                            timeToShow={['M', 'S']}
+                            timeLabels={{m: 'Menit', s: 'Detik'}}
+                          />
                         </View>
                       </View>
                     </TouchableOpacity>
@@ -296,13 +346,16 @@ class RoomScreen extends Component {
                 Alert.alert('Modal has been closed.');
               }}>
               <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                {/* <TextInput
-                  onChangeText={room => this.setState({input: room})}
-                  placeholder="Room Name"
-                  style={styles.textInput}
-                /> */}
-
-                <Text>Ini Modal Checkout</Text>
+                <CountDown
+                  until={moment
+                    .duration(
+                      moment(this.state.chekInModalDuration).diff(moment()),
+                    )
+                    .asSeconds()}
+                  onFinish={() => alert('finished')}
+                  onPress={() => alert('hello')}
+                  size={20}
+                />
               </View>
               <View>
                 <TouchableOpacity onPress={() => this.checkOutBtnHandler()}>
@@ -338,7 +391,11 @@ class RoomScreen extends Component {
 
                 <Picker
                   selectedValue={this.state.userId}
-                  style={{height: 50, width: '100%'}}
+                  style={{
+                    height: 50,
+                    width: '100%',
+                    marginLeft: 15,
+                  }}
                   onValueChange={(itemValue, itemIndex) =>
                     this.setState({userId: itemValue})
                   }>
@@ -358,7 +415,6 @@ class RoomScreen extends Component {
                 />
               </View>
 
-              <Text>Ini Modal Checkin</Text>
               <View>
                 <TouchableOpacity onPress={() => this.checkInAddBtnHandler()}>
                   <View style={styles.btnSave}>
@@ -393,20 +449,22 @@ const styles = StyleSheet.create({
   },
 
   btnSave: {
-    backgroundColor: '#387002',
+    backgroundColor: '#64dd17',
     marginTop: 20,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 15,
+    borderRadius: 5,
   },
 
   btnCancel: {
-    backgroundColor: '#a30000',
+    backgroundColor: '#ff3d00',
     marginTop: 20,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 15,
+    borderRadius: 5,
   },
 });
