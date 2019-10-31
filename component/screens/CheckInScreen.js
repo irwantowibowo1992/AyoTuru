@@ -87,11 +87,34 @@ class RoomScreen extends Component {
 
     // console.log(data);
 
-    await Axios('http://192.168.1.22:5000/api/v2/booking', config).then(res => {
+    await Axios(`http://192.168.1.22:5000/api/v2/booking`, config).then(res => {
       console.log(res.data);
       this.setCheckInModalVisible(false);
       this.onLoad();
     });
+  };
+
+  checkOutBtnHandler = async () => {
+    const checkoutConfig = {
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${this.state.myToken}`,
+      },
+    };
+
+    await Axios(
+      `http://192.168.1.22:5000/api/v2/booking/${this.state.checkInRoomId}`,
+      checkoutConfig,
+    ).then(res => {
+      this.setModalVisible(false);
+
+      this.onLoad();
+    });
+
+    // console.log(
+    //   `http://192.168.1.22:5000/api/v2/booking/${this.state.checkInRoomId}`,
+    // );
   };
 
   //SHOW CHECK IN MODAL
@@ -103,8 +126,11 @@ class RoomScreen extends Component {
     });
   }
 
-  setModalVisible(visible) {
-    this.setState({modalVisible: visible});
+  setModalVisible(visible, roomId) {
+    this.setState({
+      modalVisible: visible,
+      checkInRoomId: roomId,
+    });
   }
 
   setCheckInModalVisible(visible, roomId, roomName) {
@@ -208,7 +234,7 @@ class RoomScreen extends Component {
                   return (
                     <TouchableOpacity
                       buttonDisabled={true}
-                      onPress={() => this.setModalVisible(true, rowData)}>
+                      onPress={() => this.setModalVisible(true, rowData.id)}>
                       <View style={bookRoomStyle}>
                         <View
                           style={{
@@ -279,9 +305,9 @@ class RoomScreen extends Component {
                 <Text>Ini Modal Checkout</Text>
               </View>
               <View>
-                <TouchableOpacity onPress={() => this.postRoom()}>
+                <TouchableOpacity onPress={() => this.checkOutBtnHandler()}>
                   <View style={styles.btnSave}>
-                    <Text>Save</Text>
+                    <Text>Check Out</Text>
                   </View>
                 </TouchableOpacity>
 
