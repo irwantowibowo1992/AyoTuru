@@ -42,7 +42,7 @@ class SettingScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.22:5000/api/v2/user/${this.state.id}`,
+      url: `http://192.168.1.115:5000/api/v2/user/${this.state.id}`,
     }).then(res => {
       console.log('++++++++++++++++++++++++++++++++++++', res.data.image);
       this.setState({

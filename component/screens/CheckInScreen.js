@@ -90,11 +90,13 @@ class RoomScreen extends Component {
 
     // console.log(data);
 
-    await Axios(`http://192.168.1.22:5000/api/v2/booking`, config).then(res => {
-      console.log(res.data);
-      this.setCheckInModalVisible(false);
-      this.onLoad();
-    });
+    await Axios(`http://192.168.1.115:5000/api/v2/booking`, config).then(
+      res => {
+        console.log(res.data);
+        this.setCheckInModalVisible(false);
+        this.onLoad();
+      },
+    );
   };
 
   checkOutBtnHandler = async () => {
@@ -107,7 +109,7 @@ class RoomScreen extends Component {
     };
 
     await Axios(
-      `http://192.168.1.22:5000/api/v2/booking/${this.state.checkInRoomId}`,
+      `http://192.168.1.115:5000/api/v2/booking/${this.state.checkInRoomId}`,
       checkoutConfig,
     ).then(res => {
       this.setModalVisible(false);
@@ -130,7 +132,7 @@ class RoomScreen extends Component {
     };
 
     await Axios(
-      `http://192.168.1.22:5000/api/v2/booking/${roomId}`,
+      `http://192.168.1.115:5000/api/v2/booking/${roomId}`,
       checkoutConfig,
     ).then(res => {
       this.setModalVisible(false);
@@ -178,7 +180,7 @@ class RoomScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.22:5000/api/v2/customers`,
+      url: `http://192.168.1.115:5000/api/v2/customers`,
     });
     this.setState({
       dataCustomers: costumerData,
@@ -192,7 +194,7 @@ class RoomScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.22:5000/api/v2/bookings`,
+      url: `http://192.168.1.115:5000/api/v2/bookings`,
     });
 
     const costumerData = await Axios({
@@ -201,7 +203,7 @@ class RoomScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.22:5000/api/v2/customers`,
+      url: `http://192.168.1.115:5000/api/v2/customers`,
     });
     //   console.log('++++++++++++++++++++++++++++++++++++', res.data);
     await this.setState({

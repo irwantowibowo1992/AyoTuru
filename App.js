@@ -1,40 +1,44 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react';
+import {Provider} from 'react-redux';
+import store from './component/_redux/store';
 
-import Splash from './component/screens/SplashScreen'
-import Navigation from './component/navigation/NavigationScreen'
+import Splash from './component/screens/SplashScreen';
+import Navigation from './component/navigation/NavigationScreen';
 
 class App extends Component {
-    constructor() {
-      super()
+  constructor() {
+    super();
 
-      this.state = {
-        isLoading: true
-      }
+    this.state = {
+      isLoading: true,
+    };
+  }
+
+  render() {
+    const {isLoading} = this.state;
+
+    if (isLoading) {
+      return <Splash />;
     }
 
-    render(){
-      const { isLoading } = this.state
-
-      if(isLoading) {
-        return(
-          <Splash />
-        )
-      }
-
-      return(
+    return (
+      <Provider store={store}>
         <Navigation />
-      )
-    }
+      </Provider>
+    );
+  }
 
-    onLoading = () => {
-      setTimeout( () => {
-        this.setState({ isLoading: false })
-      }, 3000 )
-    }
+  onLoading = () => {
+    setTimeout(() => {
+      this.setState({isLoading: false});
+    }, 3000);
+  };
 
-    componentDidMount(){
-      this.onLoading()
-    }
+  componentDidMount() {
+    this.onLoading();
+  }
 }
 
-export default App
+export default App;
+
+console.disableYellowBox = true;

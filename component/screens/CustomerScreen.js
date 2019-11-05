@@ -15,6 +15,10 @@ import {
 import FAB from 'react-native-fab';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Axios from 'axios';
+import {connect} from 'react-redux';
+import {getCustomers} from '../_actions/customers';
+
+import {setHeaderAuth} from '../config/api';
 
 //Funtion Refresh Control
 function wait(timeout) {
@@ -39,8 +43,6 @@ class CustomerScreen extends Component {
 
       id: '',
       myToken: '',
-
-      dataCustomers: [],
     };
   }
 
@@ -68,20 +70,9 @@ class CustomerScreen extends Component {
     this.onLoad();
   }
 
-  onLoad = async () => {
-    await Axios({
-      method: 'GET',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${this.state.myToken}`,
-      },
-      url: `http://192.168.1.22:5000/api/v2/customers`,
-    }).then(res => {
-      console.log('++++++++++++++++++++++++++++++++++++', res.data);
-      this.setState({
-        dataCustomers: res.data,
-      });
-    });
+  onLoad = () => {
+    setHeaderAuth(this.state.myToken);
+    this.props.getCustomers();
   };
 
   //FUNCTION ADD CUSTOMER
@@ -92,7 +83,7 @@ class CustomerScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: 'http://192.168.1.22:5000/api/v2/customer',
+      url: 'http://192.168.1.115:5000/api/v2/customer',
       data: {
         name: this.state.customerName,
         identity_number: this.state.identityNumber,
@@ -119,7 +110,7 @@ class CustomerScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.22:5000/api/v2/customer/${this.state.id}`,
+      url: `http://192.168.1.115:5000/api/v2/customer/${this.state.id}`,
       data: {
         name: this.state.customerName,
         identity_number: this.state.identityNumber,
@@ -137,12 +128,21 @@ class CustomerScreen extends Component {
   };
 
   render() {
-    console.log('>>>>>>>>>>>>>', this.state.dataCustomers);
+    const {customers} = this.props;
+
+    if (customers.isLoading) {
+      return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={{fontSize: 30}}>Loading, please wait ..</Text>
+        </View>
+      );
+    }
+
     return (
       <View style={{flex: 1}}>
         <FlatList
-          data={this.state.dataCustomers}
-          keyExtractor={(item, index) => index}
+          data={customers.data}
+          keyExtractor={item => item.id.toString()}
           renderItem={({item: rowData}) => {
             return (
               <TouchableOpacity
@@ -270,7 +270,21 @@ class CustomerScreen extends Component {
   }
 }
 
-export default CustomerScreen;
+const mapStateToProps = state => {
+  return {
+    customers: state.customers,
+  };
+};
+
+const mapDispatchToProps = {
+  getCustomers,
+};
+
+// export default CustomerScreen;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(CustomerScreen);
 
 const styles = StyleSheet.create({
   customerContainer: {

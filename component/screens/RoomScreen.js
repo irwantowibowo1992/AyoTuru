@@ -62,7 +62,7 @@ class RoomScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.22:5000/api/v2/rooms`,
+      url: `http://192.168.1.115:5000/api/v2/rooms`,
     }).then(res => {
       console.log('++++++++++++++++++++++++++++++++++++', res.data);
       this.setState({
@@ -79,7 +79,7 @@ class RoomScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: 'http://192.168.1.22:5000/api/v2/room',
+      url: 'http://192.168.1.115:5000/api/v2/room',
       data: {
         name: this.state.input,
       },
@@ -102,7 +102,7 @@ class RoomScreen extends Component {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.22:5000/api/v2/room/${this.state.id}`,
+      url: `http://192.168.1.115:5000/api/v2/room/${this.state.id}`,
       data: {
         name: this.state.roomName,
       },
