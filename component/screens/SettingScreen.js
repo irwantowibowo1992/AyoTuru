@@ -10,6 +10,7 @@ import {
   TextInput,
   AsyncStorage,
 } from 'react-native';
+import axios from '../../apiConfig.js';
 import Axios from 'axios';
 import {bold} from 'colorette';
 
@@ -36,13 +37,13 @@ class SettingScreen extends Component {
   }
 
   onLoad = async () => {
-    await Axios({
+    await axios({
       method: 'GET',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.115:5000/api/v2/user/${this.state.id}`,
+      url: `/user/${this.state.id}`,
     }).then(res => {
       console.log('++++++++++++++++++++++++++++++++++++', res.data.image);
       this.setState({
@@ -56,7 +57,7 @@ class SettingScreen extends Component {
 
   render() {
     return (
-      <View>
+      <View style={{backgroundColor: '#dff9fb', flex: 1}}>
         <View style={styles.imageContainer}>
           <Image source={{uri: this.state.image}} style={styles.image} />
         </View>

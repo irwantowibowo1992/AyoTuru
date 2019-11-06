@@ -3,12 +3,13 @@ import {Text, Form, Item, Input, Button, Icon} from 'native-base';
 import {View, ImageBackground, Image, AsyncStorage} from 'react-native';
 import Axios from 'axios';
 
+import axios from '../../apiConfig.js';
 import {stackNavigator} from 'react-navigation';
 
 import RoomScreen from './RoomScreen';
 
 //import bgImage from '../../image/bgImage.jpeg';
-import Logo from '../../image/ayoTuru.png';
+import Logo from '../../image/bedtime.png';
 
 export default class Login extends Component {
   constructor(props) {
@@ -44,9 +45,9 @@ export default class Login extends Component {
   };
 
   onLogin = () => {
-    Axios({
+    axios({
       method: 'POST',
-      url: 'http://192.168.1.115:5000/api/v2/login',
+      url: '/login',
       data: {
         email: this.state.email,
         password: this.state.password,
@@ -57,7 +58,7 @@ export default class Login extends Component {
         AsyncStorage.setItem('myToken', res.data.token);
         AsyncStorage.setItem('id', JSON.stringify(res.data.id));
 
-        this.props.navigation.navigate('RoomScreen');
+        this.props.navigation.navigate('Room');
       } else {
         alert('Ingat, Pembajakan bisa bikin Petani Makmur');
       }
@@ -72,7 +73,7 @@ export default class Login extends Component {
       <View style={styles.container}>
         <View style={styles.containerTitle}>
           <View style={{marginBottom: 25}}>
-            <Text style={{fontSize: 30, color: '#FFF'}}>Ayo Turu</Text>
+            <Text style={{fontSize: 30, color: '#000'}}>Ayo Turu</Text>
           </View>
           <Image source={Logo} style={styles.logo} />
           <Text style={styles.titleText}>Login With Your Account</Text>
@@ -83,7 +84,7 @@ export default class Login extends Component {
             <Input
               placeholder="Email........"
               onChangeText={email => this.emailValidator(email)}
-              placeholderTextColor="#dddddd"
+              placeholderTextColor="#000"
               style={styles.inputTxt}
             />
           </Item>
@@ -93,13 +94,13 @@ export default class Login extends Component {
               secureTextEntry={this.state.status}
               onChangeText={pass => this.setState({password: pass})}
               placeholder="Password......."
-              placeholderTextColor="#dddddd"
+              placeholderTextColor="#000"
               style={styles.inputTxt}
             />
             <Icon
               name={this.state.status ? 'eye' : 'eye-off'}
               onPress={() => this.changeIcon()}
-              style={{marginRight: 10, color: '#ffffff'}}
+              style={{marginRight: 10, color: '#000'}}
             />
           </Item>
         </Form>
@@ -121,7 +122,7 @@ const styles = {
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#3f51b5',
+    backgroundColor: '#dff9fb',
   },
   logo: {
     width: 150,
@@ -132,7 +133,7 @@ const styles = {
     alignItems: 'center',
   },
   titleText: {
-    color: '#FFF',
+    color: '#000',
     marginTop: 20,
     marginBottom: 25,
     fontSize: 14,
@@ -164,6 +165,6 @@ const styles = {
     borderRadius: 25,
   },
   inputTxt: {
-    color: '#FFFFFF',
+    color: '#000',
   },
 };

@@ -14,6 +14,11 @@ import {
 import FAB from 'react-native-fab';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Axios from 'axios';
+import axios from '../../apiConfig'
+import {connect} from 'react-redux';
+import {getRooms} from '../_actions/rooms';
+
+import {setHeaderAuth} from '../config/api';
 
 // import Modal from 'react-native-modalbox';
 
@@ -30,9 +35,12 @@ class RoomScreen extends Component {
       roomName: '',
       id: '',
       myToken: '',
-
-      dataRooms: [],
     };
+  }
+
+  //Function Baru cek cek aja
+  cekRoom() {
+    console.log(this.props.rooms);
   }
 
   //function modal
@@ -55,31 +63,20 @@ class RoomScreen extends Component {
     this.onLoad();
   }
 
-  onLoad = async () => {
-    await Axios({
-      method: 'GET',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${this.state.myToken}`,
-      },
-      url: `http://192.168.1.115:5000/api/v2/rooms`,
-    }).then(res => {
-      console.log('++++++++++++++++++++++++++++++++++++', res.data);
-      this.setState({
-        dataRooms: res.data,
-      });
-    });
+  onLoad = () => {
+    setHeaderAuth(this.state.myToken);
+    this.props.getRooms();
   };
 
   //FUNCTION ADD ROOM
   postRoom = async () => {
-    await Axios({
+    await axios({
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: 'http://192.168.1.115:5000/api/v2/room',
+      url: '/room',
       data: {
         name: this.state.input,
       },
@@ -96,13 +93,13 @@ class RoomScreen extends Component {
 
   //FUNCTION EDIT ROOM
   handleEditRoom = async () => {
-    await Axios({
+    await axios({
       method: 'PUT',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.115:5000/api/v2/room/${this.state.id}`,
+      url: `/room/${this.state.id}`,
       data: {
         name: this.state.roomName,
       },
@@ -120,15 +117,24 @@ class RoomScreen extends Component {
   };
 
   render() {
-    console.log('>>>>>>>>>>>>>', this.state.dataRooms);
+    const {rooms} = this.props;
+
+    if (rooms.isLoading) {
+      return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={{fontSize: 30}}>Loading, please wait ..</Text>
+        </View>
+      );
+    }
+
     return (
-      <View>
+      <View style={{backgroundColor: '#dff9fb'}}>
         <View style={{alignItems: 'center'}}>
           <View>
             <FlatList
-              data={this.state.dataRooms}
+              data={rooms.data}
               numColumns={3}
-              keyExtractor={(item, index) => index}
+              keyExtractor={item => item.id.toString()}
               renderItem={({item: rowData}) => {
                 return (
                   <TouchableOpacity
@@ -242,7 +248,21 @@ class RoomScreen extends Component {
   }
 }
 
-export default RoomScreen;
+const mapStateToProps = state => {
+  return {
+    rooms: state.rooms,
+  };
+};
+
+const mapDispatchToProps = {
+  getRooms,
+};
+
+// export default RoomScreen;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(RoomScreen);
 
 const styles = StyleSheet.create({
   textInput: {

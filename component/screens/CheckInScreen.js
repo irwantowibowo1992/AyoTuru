@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 import Axios from 'axios';
 
+import axios from '../../apiConfig.js';
+
 // require moment
 const moment = require('moment');
 
@@ -90,7 +92,7 @@ class RoomScreen extends Component {
 
     // console.log(data);
 
-    await Axios(`http://192.168.1.115:5000/api/v2/booking`, config).then(
+    await axios(`/booking`, config).then(
       res => {
         console.log(res.data);
         this.setCheckInModalVisible(false);
@@ -108,8 +110,8 @@ class RoomScreen extends Component {
       },
     };
 
-    await Axios(
-      `http://192.168.1.115:5000/api/v2/booking/${this.state.checkInRoomId}`,
+    await axios(
+      `/booking/${this.state.checkInRoomId}`,
       checkoutConfig,
     ).then(res => {
       this.setModalVisible(false);
@@ -131,8 +133,8 @@ class RoomScreen extends Component {
       },
     };
 
-    await Axios(
-      `http://192.168.1.115:5000/api/v2/booking/${roomId}`,
+    await axios(
+      `/booking/${roomId}`,
       checkoutConfig,
     ).then(res => {
       this.setModalVisible(false);
@@ -174,13 +176,13 @@ class RoomScreen extends Component {
   }
 
   getCostumerData = async () => {
-    const costumerData = await Axios({
+    const costumerData = await axios({
       method: 'GET',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.115:5000/api/v2/customers`,
+      url: `/customers`,
     });
     this.setState({
       dataCustomers: costumerData,
@@ -188,22 +190,22 @@ class RoomScreen extends Component {
   };
 
   onLoad = async () => {
-    const bookingData = await Axios({
+    const bookingData = await axios({
       method: 'GET',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.115:5000/api/v2/bookings`,
+      url: `/bookings`,
     });
 
-    const costumerData = await Axios({
+    const costumerData = await axios({
       method: 'GET',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.115:5000/api/v2/customers`,
+      url: `/customers`,
     });
     //   console.log('++++++++++++++++++++++++++++++++++++', res.data);
     await this.setState({
@@ -222,7 +224,7 @@ class RoomScreen extends Component {
     console.log('<><><><><><><>', this.state.dataBookings);
 
     return (
-      <View>
+      <View style={{backgroundColor: '#dff9fb'}}>
         <View style={{alignItems: 'center'}}>
           <View>
             <FlatList
@@ -242,12 +244,12 @@ class RoomScreen extends Component {
 
                 // Where Room Is Not Booked
                 const bookAvail = {
-                  backgroundColor: '#64dd17',
+                  backgroundColor: '#6ab04c',
                 };
 
                 // Where Room Is Booked
                 const bookUnavail = {
-                  backgroundColor: '#546e7a',
+                  backgroundColor: '#535c68',
                 };
                 const bookRoomStyle = [
                   bookStyle,

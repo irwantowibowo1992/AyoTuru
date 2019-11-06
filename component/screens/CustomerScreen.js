@@ -18,14 +18,9 @@ import Axios from 'axios';
 import {connect} from 'react-redux';
 import {getCustomers} from '../_actions/customers';
 
-import {setHeaderAuth} from '../config/api';
+import axios from '../../apiConfig.js';
 
-//Funtion Refresh Control
-function wait(timeout) {
-  return new Promise(resolve => {
-    setTimeout(resolve, timeout);
-  });
-}
+import {setHeaderAuth} from '../config/api';
 
 class CustomerScreen extends Component {
   constructor(props) {
@@ -77,13 +72,13 @@ class CustomerScreen extends Component {
 
   //FUNCTION ADD CUSTOMER
   postCustomer = async () => {
-    await Axios({
+    await axios({
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: 'http://192.168.1.115:5000/api/v2/customer',
+      url: '/customer',
       data: {
         name: this.state.customerName,
         identity_number: this.state.identityNumber,
@@ -104,13 +99,13 @@ class CustomerScreen extends Component {
 
   //FUNCTION EDIT CUSTOMER
   handleEditCustomer = async () => {
-    await Axios({
+    await axios({
       method: 'PUT',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${this.state.myToken}`,
       },
-      url: `http://192.168.1.115:5000/api/v2/customer/${this.state.id}`,
+      url: `/customer/${this.state.id}`,
       data: {
         name: this.state.customerName,
         identity_number: this.state.identityNumber,
@@ -139,7 +134,7 @@ class CustomerScreen extends Component {
     }
 
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, backgroundColor: '#dff9fb'}}>
         <FlatList
           data={customers.data}
           keyExtractor={item => item.id.toString()}
